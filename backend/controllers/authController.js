@@ -139,7 +139,7 @@ const getProfile = async (req, res) => {
   try {
     const habits    = await Habit.find({ userId: req.user._id });
     const maxStreak = habits.length ? Math.max(...habits.map(h => h.streak)) : 0;
-    const curStreak = habits.filter(h => h.done).reduce((s, h) => s + h.streak, 0);
+    const curStreak = maxStreak;
 
     res.json({
       success: true,
