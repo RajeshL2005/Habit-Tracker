@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Habit Tracker</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,600;1,400&display=swap"
+    rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="../sci-fi-theme.css" />
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a class="navbar-brand" href="#">
+      <span class="brand-icon">🌿</span> Habit Tracker
+    </a>
+    <div class="nav-center d-none d-md-block">
+      <div class="nav-subtitle">Improve Your Life, One Habit at a Time</div>
+    </div>
+    <div class="nav-buttons" id="navButtons">
+      <button class="nav-btn active" onclick="scrollToHome()"><i class="bi bi-house-fill"></i> Home</button>
+      <button class="nav-btn" id="btnLogin" onclick="openLogin()"><i class="bi bi-person"></i> Log In</button>
+      <button class="nav-btn" id="btnSignup" onclick="openSignup()"><i class="bi bi-currency-dollar"></i> Sign
+        Up</button>
+      <button class="nav-btn" id="btnProfile" onclick="openProfile()" style="display:none"><i
+          class="bi bi-person-circle"></i> Profile</button>
+      <button class="nav-btn" id="btnLogout" onclick="logout()" style="display:none"><i
+          class="bi bi-box-arrow-right"></i> Logout</button>
+    </div>
+  </nav>
+
+  <!-- PAGE BODY -->
+  <div class="page-body">
+    <div class="top-row">
+
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="sidebar-title"><span>💡</span> Habit Tips</div>
+        <p class="sidebar-quote">Build small habits to create<br>big changes in your life.</p>
+        <div class="tip-item"><span class="tip-emoji">🏋️</span>
+          <div class="tip-text"><strong>Exercise daily</strong><span>Stay active, stay healthy.</span></div>
+        </div>
+        <div class="tip-item"><span class="tip-emoji">📖</span>
+          <div class="tip-text"><strong>Read before bed</strong><span>Feed your mind.</span></div>
+        </div>
+        <div class="tip-item"><span class="tip-emoji">💧</span>
+          <div class="tip-text"><strong>Drink more water</strong><span>Keep your body hydrated.</span></div>
+        </div>
+        <div class="tip-item"><span class="tip-emoji">😊</span>
+          <div class="tip-text"><strong>Practice gratitude</strong><span>Be thankful & stay positive.</span></div>
+        </div>
+        <div class="tip-item"><span class="tip-emoji">⏰</span>
+          <div class="tip-text"><strong>Wake up early</strong><span>Start your day with energy.</span></div>
+        </div>
+        <div class="tip-item"><span class="tip-emoji">🧘</span>
+          <div class="tip-text"><strong>Meditate daily</strong><span>Calm your mind and focus.</span></div>
+        </div>
+        <div class="tip-item"><span class="tip-emoji">📵</span>
+          <div class="tip-text"><strong>Limit screen time</strong><span>Reduce distractions and stress.</span></div>
+        </div>
+        <div class="tip-item"><span class="tip-emoji">🥗</span>
+          <div class="tip-text"><strong>Eat healthy</strong><span>Fuel your body with good food.</span></div>
+        </div>
+        <div class="tip-item"><span class="tip-emoji">🚶</span>
+          <div class="tip-text"><strong>Take short walks</strong><span>Refresh your mind regularly.</span></div>
+        </div>
+        <div class="tip-item"><span class="tip-emoji">🎯</span>
+          <div class="tip-text"><strong>Set clear goals</strong><span>Stay focused and motivated.</span></div>
+        </div>
+        <div class="tip-item"><span class="tip-emoji">😴</span>
+          <div class="tip-text"><strong>Sleep well</strong><span>Rest is key to productivity.</span></div>
+        </div>
+      </aside>
+
+      <!-- MAIN WRAPPER -->
+      <div class="main-wrapper" id="homeSection">
+
+        <!-- HABIT AREA -->
+        <main class="content">
+          <div id="dateViewBanner" class="date-view-banner" style="display:none;">
+            <div class="date-view-info">
+              <i class="bi bi-calendar-event"></i>
+              <span id="dateViewLabel">Viewing: —</span>
+            </div>
+            <button class="btn-back-today" onclick="backToToday()">
+              <i class="bi bi-arrow-left-circle"></i> Back to Today
+            </button>
+          </div>
+
+          <div class="add-habit-row" id="addHabitRow">
+            <input id="habitInput" class="habit-input" type="text" placeholder="Enter a new habit..." />
+            <button class="btn-add" onclick="addHabit()"><i class="bi bi-plus-lg"></i> Add Habit</button>
+          </div>
+
+          <div id="habitList"></div>
+          <div class="habits-count" id="habitCount"></div>
+
+          <!-- WEEKLY STREAK GRAPH -->
+          <div class="weekly-section" id="weeklyGraphSection">
+            <div class="weekly-box">
+              <div class="weekly-header">
+                <div class="weekly-title-group">
+                  <div class="weekly-title"><i class="bi bi-graph-up-arrow"></i> Weekly Streak Graph</div>
+                  <div class="weekly-subtitle" id="weeklyRangeLabel">— Week range —</div>
+                </div>
+                <div class="weekly-badges" id="weeklyBadges"></div>
+              </div>
+              <div class="weekly-chart-wrap">
+                <canvas id="weeklyStreakChart"></canvas>
+              </div>
+              <div class="weekly-day-stats" id="weeklyDayStats"></div>
+            </div>
+          </div>
+
+        </main>
+
+        <!-- RIGHT COLUMN: Progress + Calendar + Motivation -->
+        <div class="right-column">
+
+          <!-- PROGRESS DASHBOARD -->
+          <div class="progress-home">
+            <div class="progress-box">
+              <div class="progress-title"><i class="bi bi-bar-chart-fill"></i> Progress Dashboard</div>
+              <div class="progress-body">
+                <div class="chart-wrap">
+                  <canvas id="progressChartHome" width="180" height="180"></canvas>
+                  <div class="chart-labels" id="chartLabelsHome"></div>
+                </div>
+                <div class="legend-list" id="legendListHome"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CALENDAR -->
+          <div class="calendar-home">
+            <div class="calendar-box">
+              <div class="calendar-header-row">
+                <button class="cal-nav-btn" id="calPrevBtn" onclick="calPrevMonth()"><i
+                    class="bi bi-chevron-left"></i></button>
+                <div class="calendar-month-title" id="calMonthTitle">April 2026</div>
+                <button class="cal-nav-btn" id="calNextBtn" onclick="calNextMonth()"><i
+                    class="bi bi-chevron-right"></i></button>
+              </div>
+              <div class="cal-weekdays">
+                <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+              </div>
+              <div class="cal-grid" id="calGrid"></div>
+              <div class="cal-legend">
+                <span class="cal-legend-item"><span class="cal-dot cal-dot-full"></span> All done</span>
+                <span class="cal-legend-item"><span class="cal-dot cal-dot-partial"></span> Partial</span>
+                <span class="cal-legend-item"><span class="cal-dot cal-dot-none"></span> None done</span>
+                <span class="cal-legend-item"><span class="cal-dot cal-dot-today"></span> Today</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- MOTIVATION QUOTES -->
+          <div class="motivation-box" id="motivationBox">
+            <div class="motivation-header">
+              <span class="motivation-icon">✨</span>
+              <span class="motivation-title">Daily Motivation</span>
+              <button class="motivation-refresh-btn" onclick="refreshQuote()" title="New quote">
+                <i class="bi bi-arrow-clockwise"></i>
+              </button>
+            </div>
+            <div class="motivation-quote-wrap" id="motivationQuoteWrap">
+              <div class="motivation-quote" id="motivationQuote"></div>
+              <div class="motivation-author" id="motivationAuthor"></div>
+            </div>
+            <div class="motivation-dots" id="motivationDots"></div>
+          </div>
+
+        </div><!-- /right-column -->
+
+      </div><!-- /main-wrapper -->
+    </div><!-- /top-row -->
+  </div><!-- /page-body -->
+
+  <!-- PAGE FOOTER -->
+  <footer class="page-footer">
+    © 2026 Habit Tracker &nbsp;|&nbsp; Stay consistent. 🚀
+  </footer>
+
+  <!-- MODAL: LOG IN -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal-box">
+      <button class="modal-close-btn" onclick="closeModal('loginModal')"><i class="bi bi-x-lg"></i></button>
+      <div class="modal-title"><i class="bi bi-person"></i> Log In</div>
+      <label class="modal-label">Username</label>
+      <input id="loginUser" class="modal-input" type="text" placeholder="Enter your username" />
+      <label class="modal-label">Password</label>
+      <div class="password-field">
+        <input id="loginPass" class="modal-input" type="password" placeholder="Enter your password" />
+        <span class="toggle-password" onclick="togglePassword('loginPass', this)"><i class="bi bi-eye"></i></span>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-primary" onclick="doLogin()">Log In</button>
+        <button class="btn-modal-secondary" onclick="closeModal('loginModal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SIGN UP -->
+  <div class="modal-overlay" id="signupModal">
+    <div class="modal-box">
+      <button class="modal-close-btn" onclick="closeModal('signupModal')"><i class="bi bi-x-lg"></i></button>
+      <div class="modal-title"><i class="bi bi-person-plus"></i> Sign Up</div>
+      <label class="modal-label">Name</label>
+      <input id="signupName" class="modal-input" type="text" placeholder="Enter your name" />
+      <label class="modal-label">Email</label>
+      <input id="signupEmail" class="modal-input" type="email" placeholder="Enter your email" />
+      <label class="modal-label">Password</label>
+      <div class="password-field">
+        <input id="signupPass" class="modal-input" type="password" placeholder="Create a password" />
+        <span class="toggle-password" onclick="togglePassword('signupPass', this)"><i class="bi bi-eye"></i></span>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-primary" onclick="doSignup()">Sign Up</button>
+        <button class="btn-modal-secondary" onclick="closeModal('signupModal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIRM DELETE -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal-box delete-modal-box">
+      <button class="modal-close-btn" onclick="closeModal('deleteModal')"><i class="bi bi-x-lg"></i></button>
+      <div class="modal-title delete-modal-title"><i class="bi bi-exclamation-triangle-fill delete-icon"></i> Confirm
+        Delete</div>
+      <p class="delete-msg">Are you sure you want<br>to delete this habit?</p>
+      <div class="modal-actions">
+        <button class="btn-modal-secondary" onclick="closeModal('deleteModal')">Cancel</button>
+        <button class="btn-modal-danger" onclick="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: MY PROFILE -->
+  <div class="modal-overlay" id="profileModal">
+    <div class="modal-box profile-modal-box">
+      <button class="modal-close-btn" onclick="closeModal('profileModal')"><i class="bi bi-x-lg"></i></button>
+      <div class="modal-title"><i class="bi bi-person-circle"></i> My Profile</div>
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar" id="profileAvatar"><i class="bi bi-person-fill"></i></div>
+      </div>
+      <div class="profile-name"><span>Name: </span><span id="profileNameDisplay">—</span></div>
+      <div class="profile-stats">
+        <div class="stat-card">
+          <div class="stat-icon">📋</div>
+          <div class="stat-label">Total<br>Habits</div>
+          <div class="stat-val" id="statTotal">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-label">Current<br>Streak</div>
+          <div class="stat-val" id="statCurrent">0 days</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🏆</div>
+          <div class="stat-label">Best<br>Streak</div>
+          <div class="stat-val" id="statBest">0 days</div>
+        </div>
+      </div>
+      <button class="btn-modal-close-dark" onclick="closeModal('profileModal')">Close</button>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="api.js"></script>
+  <script src="script.js"></script>
+
+</body>
+
+</html>

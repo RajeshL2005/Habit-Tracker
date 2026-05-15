@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Habit Tracker — Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="admin.css" />
+  <link rel="stylesheet" href="../sci-fi-theme.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a class="navbar-brand" href="#">
+      <span class="brand-icon">🌿</span> Habit Tracker
+      <span class="admin-badge"><i class="bi bi-shield-fill"></i> Admin</span>
+    </a>
+    <div class="nav-center d-none d-md-block">
+      <div class="nav-subtitle">Admin Control Panel</div>
+    </div>
+    <div class="nav-buttons" id="navButtons">
+      <button class="nav-btn active" onclick="showSection('dashboard')"><i class="bi bi-grid-fill"></i> Dashboard</button>
+      <button class="nav-btn" onclick="showSection('users')"><i class="bi bi-people-fill"></i> Users</button>
+      <button class="nav-btn" onclick="showSection('habits')"><i class="bi bi-list-check"></i> Habits</button>
+      <button class="nav-btn" id="btnAdminLogin" onclick="openAdminLogin()"><i class="bi bi-person-badge"></i> Admin Login</button>
+      <button class="nav-btn" id="btnAdminLogout" onclick="adminLogout()" style="display:none"><i class="bi bi-box-arrow-right"></i> Logout</button>
+    </div>
+  </nav>
+
+  <!-- LOGIN GATE -->
+  <div id="loginGate" class="login-gate">
+    <div class="login-gate-box">
+      <div class="login-gate-icon">🛡️</div>
+      <div class="login-gate-title" id="loginGateTitle">Admin Access Required</div>
+      <p class="login-gate-sub" id="loginGateSub">Please login with admin credentials to access the control panel.</p>
+      <button class="btn-add" id="loginGateBtn" onclick="openAdminLogin()"><i class="bi bi-shield-lock"></i> Admin Login</button>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div id="adminPanel" style="display:none">
+    <div class="page-body">
+      <div class="top-row">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+          <div class="sidebar-title"><span>🛡️</span> Admin Menu</div>
+          <p class="sidebar-quote">Manage users, habits,<br>and platform health.</p>
+
+          <div class="menu-item active" onclick="showSection('dashboard')" id="menu-dashboard">
+            <span class="menu-emoji"><i class="bi bi-grid-fill"></i></span>
+            <div class="menu-text"><strong>Dashboard</strong><span>Overview & stats</span></div>
+          </div>
+          <div class="menu-item" onclick="showSection('users')" id="menu-users">
+            <span class="menu-emoji"><i class="bi bi-people-fill"></i></span>
+            <div class="menu-text"><strong>User Management</strong><span>View & manage users</span></div>
+          </div>
+          <div class="menu-item" onclick="showSection('habits')" id="menu-habits">
+            <span class="menu-emoji"><i class="bi bi-list-check"></i></span>
+            <div class="menu-text"><strong>Habit Overview</strong><span>All habits across users</span></div>
+          </div>
+          <div class="menu-item" onclick="showSection('analytics')" id="menu-analytics">
+            <span class="menu-emoji"><i class="bi bi-bar-chart-fill"></i></span>
+            <div class="menu-text"><strong>Analytics</strong><span>Platform statistics</span></div>
+          </div>
+          <div class="menu-item" onclick="showSection('activity')" id="menu-activity">
+            <span class="menu-emoji"><i class="bi bi-activity"></i></span>
+            <div class="menu-text"><strong>Activity Log</strong><span>Recent platform activity</span></div>
+          </div>
+          <div class="menu-item" onclick="showSection('settings')" id="menu-settings">
+            <span class="menu-emoji"><i class="bi bi-gear-fill"></i></span>
+            <div class="menu-text"><strong>Settings</strong><span>Platform configuration</span></div>
+          </div>
+
+          <!-- Quick Stats in Sidebar -->
+          <div class="sidebar-quick-stats">
+            <div class="sidebar-stat">
+              <span class="sidebar-stat-label">Total Users</span>
+              <span class="sidebar-stat-val" id="sidebarUsers">0</span>
+            </div>
+            <div class="sidebar-stat">
+              <span class="sidebar-stat-label">Total Habits</span>
+              <span class="sidebar-stat-val" id="sidebarHabits">0</span>
+            </div>
+            <div class="sidebar-stat">
+              <span class="sidebar-stat-label">Active Today</span>
+              <span class="sidebar-stat-val accent" id="sidebarActive">0</span>
+            </div>
+          </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-wrapper">
+
+          <!-- ═══════════ DASHBOARD SECTION ═══════════ -->
+          <div id="section-dashboard" class="admin-section">
+            <div class="section-header">
+              <h2><i class="bi bi-grid-fill"></i> Dashboard Overview</h2>
+              <span class="section-date" id="dashDate"></span>
+            </div>
+
+            <!-- Stat Cards Row -->
+            <div class="stat-cards-row" id="statCardsRow">
+              <div class="stat-card-big">
+                <div class="stat-card-icon" style="background:rgba(59,130,246,0.15);color:#3b82f6"><i class="bi bi-people-fill"></i></div>
+                <div class="stat-card-body">
+                  <div class="stat-card-val" id="statTotalUsers">0</div>
+                  <div class="stat-card-label">Total Users</div>
+                </div>
+              </div>
+              <div class="stat-card-big">
+                <div class="stat-card-icon" style="background:rgba(34,197,94,0.15);color:#22c55e"><i class="bi bi-list-check"></i></div>
+                <div class="stat-card-body">
+                  <div class="stat-card-val" id="statTotalHabits">0</div>
+                  <div class="stat-card-label">Total Habits</div>
+                </div>
+              </div>
+              <div class="stat-card-big">
+                <div class="stat-card-icon" style="background:rgba(249,115,22,0.15);color:#f97316"><i class="bi bi-fire"></i></div>
+                <div class="stat-card-body">
+                  <div class="stat-card-val" id="statCompletedToday">0</div>
+                  <div class="stat-card-label">Completed Today</div>
+                </div>
+              </div>
+              <div class="stat-card-big">
+                <div class="stat-card-icon" style="background:rgba(168,85,247,0.15);color:#a855f7"><i class="bi bi-graph-up-arrow"></i></div>
+                <div class="stat-card-body">
+                  <div class="stat-card-val" id="statAvgStreak">0</div>
+                  <div class="stat-card-label">Avg Streak (days)</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="charts-row">
+              <div class="chart-card">
+                <div class="chart-card-title"><i class="bi bi-pie-chart-fill"></i> Habit Completion Rate</div>
+                <div class="chart-card-body">
+                  <canvas id="adminPieChart" width="180" height="180"></canvas>
+                  <div class="pie-legend" id="adminPieLegend"></div>
+                </div>
+              </div>
+              <div class="chart-card wide" style="min-height:320px">
+                <div class="chart-card-title"><i class="bi bi-bar-chart-fill"></i> Habits Per User</div>
+                <div class="bar-chart-fill">
+                  <canvas id="adminBarChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Top Streakers -->
+            <div class="content-card">
+              <div class="content-card-title"><i class="bi bi-trophy-fill" style="color:#fbbf24"></i> Top Streakers</div>
+              <div id="topStreakers" class="streakers-list"></div>
+            </div>
+          </div>
+
+          <!-- ═══════════ USERS SECTION ═══════════ -->
+          <div id="section-users" class="admin-section" style="display:none">
+            <div class="section-header">
+              <h2><i class="bi bi-people-fill"></i> User Management</h2>
+              <div class="section-actions">
+                <input type="text" id="userSearch" class="search-input" placeholder="Search users..." oninput="filterUsers()" />
+              </div>
+            </div>
+
+            <div class="content-card">
+              <div class="content-card-title"><i class="bi bi-person-lines-fill"></i> All Users <span class="count-badge" id="usersCountBadge">0</span></div>
+              <div class="table-wrap">
+                <table class="admin-table" id="usersTable">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Username</th>
+                      <th>Email</th>
+                      <th>Habits</th>
+                      <th>Completed Today</th>
+                      <th>Best Streak</th>
+                      <th>Restores Left</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="usersTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- ═══════════ HABITS SECTION ═══════════ -->
+          <div id="section-habits" class="admin-section" style="display:none">
+            <div class="section-header">
+              <h2><i class="bi bi-list-check"></i> Habit Overview</h2>
+              <div class="section-actions">
+                <input type="text" id="habitSearch" class="search-input" placeholder="Search habits..." oninput="filterHabits()" />
+                <select id="habitFilterUser" class="search-input" onchange="filterHabits()" style="max-width:160px">
+                  <option value="">All Users</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="content-card">
+              <div class="content-card-title"><i class="bi bi-journals"></i> All Habits <span class="count-badge" id="habitsCountBadge">0</span></div>
+              <div class="table-wrap">
+                <table class="admin-table" id="habitsTable">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Habit Name</th>
+                      <th>User</th>
+                      <th>Streak</th>
+                      <th>Status Today</th>
+                      <th>Last Done</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="habitsTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- ═══════════ ANALYTICS SECTION ═══════════ -->
+          <div id="section-analytics" class="admin-section" style="display:none">
+            <div class="section-header">
+              <h2><i class="bi bi-bar-chart-fill"></i> Platform Analytics</h2>
+            </div>
+
+            <div class="charts-row">
+              <div class="chart-card wide">
+                <div class="chart-card-title"><i class="bi bi-graph-up"></i> Most Popular Habits</div>
+                <div style="height:220px;position:relative">
+                  <canvas id="popularHabitsChart"></canvas>
+                </div>
+              </div>
+              <div class="chart-card">
+                <div class="chart-card-title"><i class="bi bi-pie-chart"></i> Completion Distribution</div>
+                <div style="height:220px;position:relative;display:flex;align-items:center;justify-content:center">
+                  <canvas id="completionDistChart" width="180" height="180"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <div class="charts-row">
+              <div class="chart-card wide">
+                <div class="chart-card-title"><i class="bi bi-person-check-fill"></i> User Engagement Breakdown</div>
+                <div id="engagementBreakdown" class="engagement-list"></div>
+              </div>
+              <div class="chart-card">
+                <div class="chart-card-title"><i class="bi bi-lightning-fill" style="color:#fbbf24"></i> Platform Health</div>
+                <div id="platformHealth" class="health-list"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ═══════════ ACTIVITY LOG SECTION ═══════════ -->
+          <div id="section-activity" class="admin-section" style="display:none">
+            <div class="section-header">
+              <h2><i class="bi bi-activity"></i> Activity Log</h2>
+              <button class="btn-add" onclick="refreshActivityLog()" style="padding:7px 16px;font-size:0.8rem">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+              </button>
+            </div>
+            <div class="content-card">
+              <div class="content-card-title"><i class="bi bi-clock-history"></i> Recent Actions</div>
+              <div id="activityLog" class="activity-list"></div>
+            </div>
+          </div>
+
+          <!-- ═══════════ SETTINGS SECTION ═══════════ -->
+          <div id="section-settings" class="admin-section" style="display:none">
+            <div class="section-header">
+              <h2><i class="bi bi-gear-fill"></i> Platform Settings</h2>
+            </div>
+
+            <div class="settings-grid">
+              <div class="content-card">
+                <div class="content-card-title"><i class="bi bi-person-gear"></i> Admin Account</div>
+                <div class="settings-form">
+                  <label class="settings-label">Admin Username</label>
+                  <input class="modal-input" type="text" id="settingAdminUser" value="admin" />
+                  <label class="settings-label">New Password</label>
+                  <div class="password-field">
+                    <input class="modal-input" type="password" id="settingAdminPass" placeholder="Leave blank to keep current" />
+                    <span class="toggle-password" onclick="togglePassword('settingAdminPass', this)"><i class="bi bi-eye"></i></span>
+                  </div>
+                  <button class="btn-add" onclick="saveAdminSettings()" style="padding:10px 22px;font-size:0.85rem;margin-top:4px">
+                    <i class="bi bi-floppy-fill"></i> Save Changes
+                  </button>
+                </div>
+              </div>
+
+              <div class="content-card">
+                <div class="content-card-title"><i class="bi bi-sliders"></i> Platform Controls</div>
+                <div class="settings-form">
+                  <div class="toggle-row">
+                    <div class="toggle-info">
+                      <strong>New Registrations</strong>
+                      <span>Allow new users to sign up</span>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="toggleRegistrations" checked onchange="saveToggle(this, 'registrations')" />
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                  <div class="toggle-row">
+                    <div class="toggle-info">
+                      <strong>Habit Deletion</strong>
+                      <span>Allow users to delete habits</span>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="toggleDeletion" checked onchange="saveToggle(this, 'deletion')" />
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                  <div class="toggle-row">
+                    <div class="toggle-info">
+                      <strong>Streak Restores</strong>
+                      <span>Allow streak restore feature</span>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="toggleRestores" checked onchange="saveToggle(this, 'restores')" />
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="content-card danger-card">
+                <div class="content-card-title"><i class="bi bi-exclamation-triangle-fill" style="color:#ef4444"></i> Danger Zone</div>
+                <div class="settings-form">
+                  <p style="font-size:0.82rem;color:#94a3b8;margin-bottom:16px">These actions are irreversible. Proceed with caution.</p>
+                  <button class="btn-danger-outline" onclick="confirmResetAllHabits()">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reset All Users' Habits
+                  </button>
+                  <button class="btn-danger-outline" onclick="confirmClearLogs()">
+                    <i class="bi bi-trash3"></i> Clear Activity Logs
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /main-wrapper -->
+      </div><!-- /top-row -->
+    </div><!-- /page-body -->
+  </div><!-- /adminPanel -->
+
+  <!-- PAGE FOOTER -->
+  <footer class="page-footer">
+    © 2026 Habit Tracker Admin &nbsp;|&nbsp; <i class="bi bi-shield-fill"></i> Secure Admin Panel
+  </footer>
+
+  <!-- MODAL: ADMIN SIGNUP (first-time setup) -->
+  <div class="modal-overlay" id="adminSignupModal">
+    <div class="modal-box">
+      <button class="modal-close-btn" onclick="closeModal('adminSignupModal')"><i class="bi bi-x-lg"></i></button>
+      <div class="modal-title"><i class="bi bi-person-plus-fill"></i> Create Admin Account</div>
+      <div class="signup-notice">
+        <i class="bi bi-info-circle-fill"></i>
+        First-time setup. This creates the one admin account for this panel.
+      </div>
+      <label class="modal-label">Admin Username</label>
+      <input id="signupAdminUser" class="modal-input" type="text" placeholder="Choose an admin username" autocomplete="off" />
+      <label class="modal-label">Password</label>
+      <div class="password-field">
+        <input id="signupAdminPass" class="modal-input" type="password" placeholder="Create a strong password (min 6 chars)" />
+        <span class="toggle-password" onclick="togglePassword('signupAdminPass', this)"><i class="bi bi-eye"></i></span>
+      </div>
+      <label class="modal-label">Confirm Password</label>
+      <div class="password-field">
+        <input id="signupAdminPass2" class="modal-input" type="password" placeholder="Repeat your password" />
+        <span class="toggle-password" onclick="togglePassword('signupAdminPass2', this)"><i class="bi bi-eye"></i></span>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-primary" onclick="doAdminSignup()"><i class="bi bi-shield-check"></i> Create Account</button>
+        <button class="btn-modal-secondary" onclick="closeModal('adminSignupModal')">Cancel</button>
+      </div>
+      <p class="signup-footer-note">Already have an account? <span class="link-btn" onclick="closeModal('adminSignupModal');openModal('adminLoginModal')">Log In</span></p>
+    </div>
+  </div>
+
+  <!-- MODAL: ADMIN LOGIN -->
+  <div class="modal-overlay" id="adminLoginModal">
+    <div class="modal-box">
+      <button class="modal-close-btn" onclick="closeModal('adminLoginModal')"><i class="bi bi-x-lg"></i></button>
+      <div class="modal-title"><i class="bi bi-shield-lock-fill"></i> Admin Login</div>
+      <label class="modal-label">Admin Username</label>
+      <input id="adminLoginUser" class="modal-input" type="text" placeholder="Enter admin username" />
+      <label class="modal-label">Password</label>
+      <div class="password-field">
+        <input id="adminLoginPass" class="modal-input" type="password" placeholder="Enter admin password" />
+        <span class="toggle-password" onclick="togglePassword('adminLoginPass', this)"><i class="bi bi-eye"></i></span>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-primary" onclick="doAdminLogin()">Login</button>
+        <button class="btn-modal-secondary" onclick="closeModal('adminLoginModal')">Cancel</button>
+      </div>
+      <p class="signup-footer-note" id="loginSignupLink" style="display:none">No account yet? <span class="link-btn" onclick="closeModal('adminLoginModal');openModal('adminSignupModal')">Create one</span></p>
+    </div>
+  </div>
+
+  <!-- MODAL: VIEW USER Details -->
+  <div class="modal-overlay" id="userDetailModal">
+    <div class="modal-box profile-modal-box">
+      <button class="modal-close-btn" onclick="closeModal('userDetailModal')"><i class="bi bi-x-lg"></i></button>
+      <div class="modal-title"><i class="bi bi-person-circle"></i> User Details</div>
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar"><i class="bi bi-person-fill"></i></div>
+      </div>
+      <div class="profile-name"><span>Username: </span><span id="detailUsername">—</span></div>
+      <div class="profile-name" style="margin-bottom:6px"><span>Email: </span><span id="detailEmail" style="color:#93c5fd">—</span></div>
+      <div class="profile-stats">
+        <div class="stat-card">
+          <div class="stat-icon">📋</div>
+          <div class="stat-label">Total<br>Habits</div>
+          <div class="stat-val" id="detailTotal">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-label">Best<br>Streak</div>
+          <div class="stat-val" id="detailBest">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-label">Done<br>Today</div>
+          <div class="stat-val" id="detailDone">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔄</div>
+          <div class="stat-label">Restores<br>Left</div>
+          <div class="stat-val" id="detailRestores">0</div>
+        </div>
+      </div>
+      <div id="detailHabitsList" style="margin-top:16px;max-height:180px;overflow-y:auto"></div>
+      <button class="btn-modal-close-dark" onclick="closeModal('userDetailModal')">Close</button>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIRM DANGER -->
+  <div class="modal-overlay" id="dangerModal">
+    <div class="modal-box delete-modal-box">
+      <button class="modal-close-btn" onclick="closeModal('dangerModal')"><i class="bi bi-x-lg"></i></button>
+      <div class="modal-title delete-modal-title"><i class="bi bi-exclamation-triangle-fill delete-icon"></i> Confirm Action</div>
+      <p class="delete-msg" id="dangerMsg">Are you sure?</p>
+      <div class="modal-actions">
+        <button class="btn-modal-secondary" onclick="closeModal('dangerModal')">Cancel</button>
+        <button class="btn-modal-danger" id="dangerConfirmBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DELETE USER -->
+  <div class="modal-overlay" id="deleteUserModal">
+    <div class="modal-box delete-modal-box">
+      <button class="modal-close-btn" onclick="closeModal('deleteUserModal')"><i class="bi bi-x-lg"></i></button>
+      <div class="modal-title delete-modal-title"><i class="bi bi-exclamation-triangle-fill delete-icon"></i> Delete User</div>
+      <p class="delete-msg">Are you sure you want<br>to delete this user and all their data?</p>
+      <div class="modal-actions">
+        <button class="btn-modal-secondary" onclick="closeModal('deleteUserModal')">Cancel</button>
+        <button class="btn-modal-danger" onclick="confirmDeleteUser()">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="api.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

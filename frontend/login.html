@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Habit Tracker — System Auth</title>
+  <meta name="description" content="Login or sign up to access your Habit Tracker dashboard or admin panel.">
+  <link rel="stylesheet" href="futuristic.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="sci-fi-nav">
+    <a href="landing.html" class="brand" style="text-decoration:none;">
+      <img src="logo.png" alt="Logo" class="brand-logo-img" onerror="this.outerHTML='<span style=\'font-size:1.8rem\'>&#127807;</span>'">
+      <span>Habit</span> Tracker
+    </a>
+    <div class="nav-links">
+      <a href="landing.html" class="nav-link">Home</a>
+    </div>
+  </nav>
+
+  <!-- Particle Canvas -->
+  <canvas id="particleCanvas"></canvas>
+
+  <!-- Toast -->
+  <div id="toast" class="toast-msg"></div>
+
+  <!-- Login Container -->
+  <div class="container">
+    <div class="glass-panel login-panel">
+
+      <!-- Role Selector Tabs -->
+      <div class="role-tabs" id="roleTabs">
+        <button class="role-tab active" data-role="user" onclick="switchRole('user')" id="tab-user">
+          <span class="role-tab-icon">&#128100;</span> User
+        </button>
+        <button class="role-tab" data-role="admin" onclick="switchRole('admin')" id="tab-admin">
+          <span class="role-tab-icon">&#128737;&#65039;</span> Admin
+        </button>
+        <div class="role-tab-indicator" id="roleIndicator"></div>
+      </div>
+
+      <!-- Panel Header -->
+      <div class="panel-header">
+        <h2 class="panel-title" id="panelTitle">User Login</h2>
+        <p class="panel-subtitle" id="panelSubtitle">Enter credentials to access dashboard</p>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div id="loginForm">
+        <div class="form-group">
+          <label class="form-label" for="loginUser">Username</label>
+          <input type="text" id="loginUser" class="form-input" placeholder="> enter username" autocomplete="username">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="loginPass">Password</label>
+          <div class="password-wrap">
+            <input type="password" id="loginPass" class="form-input" placeholder="> ********" autocomplete="current-password">
+            <button type="button" class="toggle-pass-btn" onclick="togglePassword('loginPass', this)" aria-label="Toggle password visibility">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <button class="btn-cyber submit-btn" onclick="handleLogin()" id="loginBtn">
+          <span class="btn-text">Access System</span>
+        </button>
+
+        <div class="form-footer" id="loginFooter">
+          <a href="forgot-password.html" style="color:var(--accent-cyan);font-size:0.82rem;">Forgot Password?</a>
+          <span style="margin:0 6px;color:var(--text-sub);">|</span>
+          New operative? <a href="#" onclick="showSignupForm(); return false;">Create Account</a>
+        </div>
+      </div>
+
+      <!-- SIGNUP FORM (User only) -->
+      <div id="signupForm" style="display:none;">
+        <div class="form-group">
+          <label class="form-label" for="signupName">Username</label>
+          <input type="text" id="signupName" class="form-input" placeholder="> choose username" autocomplete="username">
+        </div>
+
+        <div class="form-group" id="signupEmailGroup">
+          <label class="form-label" for="signupEmail">Email</label>
+          <input type="email" id="signupEmail" class="form-input" placeholder="> your@email.com" autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="signupPass">Password</label>
+          <div class="password-wrap">
+            <input type="password" id="signupPass" class="form-input" placeholder="> min 6 characters" autocomplete="new-password">
+            <button type="button" class="toggle-pass-btn" onclick="togglePassword('signupPass', this)" aria-label="Toggle password visibility">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group" id="signupConfirmGroup" style="display:none;">
+          <label class="form-label" for="signupPass2">Confirm Password</label>
+          <div class="password-wrap">
+            <input type="password" id="signupPass2" class="form-input" placeholder="> repeat password" autocomplete="new-password">
+            <button type="button" class="toggle-pass-btn" onclick="togglePassword('signupPass2', this)" aria-label="Toggle password visibility">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <button class="btn-cyber submit-btn" onclick="handleSignup()" id="signupBtn">
+          <span class="btn-text">Create Account</span>
+        </button>
+
+        <div class="form-footer">
+          Already registered? <a href="#" onclick="showLoginForm(); return false;">Log In</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="sci-fi-footer">
+    <div class="footer-line"></div>
+    <p>&copy; 2026 Habit Tracker &nbsp;|&nbsp; Secure authentication portal. &#128272;</p>
+  </footer>
+
+  <script>
+    /* ══════════════════════════════════════════
+       UNIFIED LOGIN — Inline JS
+       Calls the correct API endpoint based on
+       the selected role (user vs admin).
+       Does NOT modify any existing JS files.
+    ══════════════════════════════════════════ */
+
+    var API_BASE = (location.port === '5000') ? '/api' : 'http://localhost:5000/api';
+    var currentRole = 'user';
+
+    /* ── Role Switching ── */
+    function switchRole(role) {
+      currentRole = role;
+      var tabs = document.querySelectorAll('.role-tab');
+      for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+      document.querySelector('.role-tab[data-role="' + role + '"]').classList.add('active');
+
+      // Move indicator
+      var indicator = document.getElementById('roleIndicator');
+      indicator.style.left = role === 'user' ? '4px' : '50%';
+
+      // Update text
+      if (role === 'user') {
+        document.getElementById('panelTitle').textContent = 'User Login';
+        document.getElementById('panelSubtitle').textContent = 'Enter credentials to access dashboard';
+        document.getElementById('loginFooter').style.display = '';
+      } else {
+        document.getElementById('panelTitle').textContent = 'Admin Login';
+        document.getElementById('panelSubtitle').textContent = 'Authorized personnel only';
+        document.getElementById('loginFooter').style.display = 'none';
+      }
+
+      // Always go back to login form on role switch
+      showLoginForm();
+    }
+
+    /* ── Form Toggling ── */
+    function showSignupForm() {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('signupForm').style.display = '';
+
+      if (currentRole === 'admin') {
+        document.getElementById('signupEmailGroup').style.display = 'none';
+        document.getElementById('signupConfirmGroup').style.display = '';
+        document.getElementById('panelTitle').textContent = 'Create Admin';
+        document.getElementById('panelSubtitle').textContent = 'First-time setup — create admin account';
+      } else {
+        document.getElementById('signupEmailGroup').style.display = '';
+        document.getElementById('signupConfirmGroup').style.display = 'none';
+        document.getElementById('panelTitle').textContent = 'Create Account';
+        document.getElementById('panelSubtitle').textContent = 'Join the system and start tracking';
+      }
+    }
+
+    function showLoginForm() {
+      document.getElementById('signupForm').style.display = 'none';
+      document.getElementById('loginForm').style.display = '';
+      switchRoleUI();
+    }
+
+    function switchRoleUI() {
+      if (currentRole === 'user') {
+        document.getElementById('panelTitle').textContent = 'User Login';
+        document.getElementById('panelSubtitle').textContent = 'Enter credentials to access dashboard';
+        document.getElementById('loginFooter').style.display = '';
+      } else {
+        document.getElementById('panelTitle').textContent = 'Admin Login';
+        document.getElementById('panelSubtitle').textContent = 'Authorized personnel only';
+        document.getElementById('loginFooter').style.display = 'none';
+      }
+    }
+
+    /* ── Toast ── */
+    function showToast(msg, type) {
+      type = type || 'success';
+      var t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast-msg show ' + type;
+      clearTimeout(t._timer);
+      t._timer = setTimeout(function() { t.className = 'toast-msg'; }, 3500);
+    }
+
+    /* ── Toggle Password ── */
+    function togglePassword(inputId, btn) {
+      var input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.style.opacity = '1';
+      } else {
+        input.type = 'password';
+        btn.style.opacity = '0.5';
+      }
+    }
+
+    /* ── API Helper ── */
+    function apiCall(endpoint, body) {
+      return fetch(API_BASE + endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      }).then(function(res) {
+        return res.json().then(function(data) {
+          if (!res.ok) throw new Error(data.message || 'Request failed');
+          return data;
+        });
+      });
+    }
+
+    /* ══════════════════════════════════════════
+       LOGIN HANDLER
+    ══════════════════════════════════════════ */
+    function handleLogin() {
+      var username = document.getElementById('loginUser').value.trim();
+      var password = document.getElementById('loginPass').value.trim();
+
+      if (!username || !password) {
+        showToast('Please fill all fields', 'error');
+        return;
+      }
+
+      var btn = document.getElementById('loginBtn');
+      btn.classList.add('loading');
+
+      if (currentRole === 'admin') {
+        // Admin login
+        apiCall('/admin/login', { username: username, password: password })
+          .then(function(res) {
+            localStorage.setItem('habitTracker_admin_token', res.data.token);
+            showToast(res.message || 'Admin login successful!', 'success');
+            setTimeout(function() { window.location.href = 'admin/admin.html'; }, 800);
+          })
+          .catch(function(e) {
+            if (e.message === 'Failed to fetch') {
+              showToast('Backend server is not running', 'error');
+            } else {
+              showToast(e.message, 'error');
+              checkAndOfferAdminSignup();
+            }
+            btn.classList.remove('loading');
+          });
+      } else {
+        // User login
+        apiCall('/auth/login', { username: username, password: password })
+          .then(function(res) {
+            localStorage.setItem('habitTracker_token', res.data.token);
+            showToast(res.message || 'Login successful!', 'success');
+            setTimeout(function() { window.location.href = 'user/index.html'; }, 800);
+          })
+          .catch(function(e) {
+            if (e.message === 'Failed to fetch') {
+              showToast('Backend server is not running', 'error');
+            } else {
+              showToast(e.message, 'error');
+            }
+            btn.classList.remove('loading');
+          });
+      }
+    }
+
+    /* ══════════════════════════════════════════
+       SIGNUP HANDLER
+    ══════════════════════════════════════════ */
+    function handleSignup() {
+      var username = document.getElementById('signupName').value.trim();
+      var password = document.getElementById('signupPass').value.trim();
+
+      if (!username || !password) {
+        showToast('Please fill all fields', 'error');
+        return;
+      }
+
+      var btn = document.getElementById('signupBtn');
+      btn.classList.add('loading');
+
+      if (currentRole === 'admin') {
+        var pass2 = document.getElementById('signupPass2').value.trim();
+        if (password !== pass2) { showToast('Passwords do not match', 'error'); btn.classList.remove('loading'); return; }
+
+        // Admin signup
+        apiCall('/admin/signup', { username: username, password: password })
+          .then(function(res) {
+            localStorage.setItem('habitTracker_admin_token', res.data.token);
+            showToast(res.message || 'Admin account created!', 'success');
+            setTimeout(function() { window.location.href = 'admin/admin.html'; }, 800);
+          })
+          .catch(function(e) {
+            if (e.message === 'Failed to fetch') {
+              showToast('Backend server is not running', 'error');
+            } else {
+              showToast(e.message, 'error');
+            }
+            btn.classList.remove('loading');
+          });
+      } else {
+        var email = document.getElementById('signupEmail').value.trim();
+        if (!email) { showToast('Please enter your email', 'error'); btn.classList.remove('loading'); return; }
+
+        // User signup
+        apiCall('/auth/signup', { username: username, email: email, password: password })
+          .then(function(res) {
+            localStorage.setItem('habitTracker_token', res.data.token);
+            showToast(res.message || 'Account created!', 'success');
+            setTimeout(function() { window.location.href = 'user/index.html'; }, 800);
+          })
+          .catch(function(e) {
+            if (e.message === 'Failed to fetch') {
+              showToast('Backend server is not running', 'error');
+            } else {
+              showToast(e.message, 'error');
+            }
+            btn.classList.remove('loading');
+          });
+      }
+    }
+
+    /* ── Check if admin exists, if not auto-show signup ── */
+    function checkAndOfferAdminSignup() {
+      fetch(API_BASE + '/admin/check')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (!data.data.exists) {
+            showToast('No admin account found. Create one below.', 'error');
+            showSignupForm();
+          }
+        })
+        .catch(function() { /* silent */ });
+    }
+
+    /* ══════════════════════════════════════════
+       INIT
+    ══════════════════════════════════════════ */
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check URL param for role pre-selection
+      var params = new URLSearchParams(window.location.search);
+      var roleParam = params.get('role');
+      if (roleParam === 'admin') {
+        switchRole('admin');
+      }
+
+      // Enter key support
+      var loginFields = ['loginUser', 'loginPass'];
+      loginFields.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.addEventListener('keydown', function(e) { if (e.key === 'Enter') handleLogin(); });
+      });
+      var signupFields = ['signupName', 'signupEmail', 'signupPass', 'signupPass2'];
+      signupFields.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.addEventListener('keydown', function(e) { if (e.key === 'Enter') handleSignup(); });
+      });
+
+      // If admin selected via URL, also check if admin exists
+      if (roleParam === 'admin') {
+        fetch(API_BASE + '/admin/check')
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            if (!data.data.exists) {
+              showSignupForm();
+            }
+          })
+          .catch(function() {});
+      }
+    });
+
+    /* ── Particle Background ── */
+    var canvas = document.getElementById('particleCanvas');
+    var ctx = canvas.getContext('2d');
+    var particles = [];
+    function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    function Particle() { this.reset(); }
+    Particle.prototype.reset = function() {
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
+      this.size = Math.random() * 1.5 + 0.3;
+      this.speedX = (Math.random() - 0.5) * 0.3;
+      this.speedY = (Math.random() - 0.5) * 0.3;
+      this.opacity = Math.random() * 0.4 + 0.1;
+    };
+    Particle.prototype.update = function() {
+      this.x += this.speedX; this.y += this.speedY;
+      if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset();
+    };
+    Particle.prototype.draw = function() {
+      ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0, 255, 204, ' + this.opacity + ')'; ctx.fill();
+    };
+
+    for (var i = 0; i < 50; i++) particles.push(new Particle());
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (var k = 0; k < particles.length; k++) { particles[k].update(); particles[k].draw(); }
+      for (var a = 0; a < particles.length; a++) {
+        for (var b = a + 1; b < particles.length; b++) {
+          var dx = particles[a].x - particles[b].x;
+          var dy = particles[a].y - particles[b].y;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 100) {
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(0, 255, 204, ' + (0.06 * (1 - dist / 100)) + ')';
+            ctx.lineWidth = 0.4;
+            ctx.moveTo(particles[a].x, particles[a].y);
+            ctx.lineTo(particles[b].x, particles[b].y);
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+  </script>
+
+</body>
+</html>
